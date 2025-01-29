@@ -1,17 +1,31 @@
-from src.utils.preprocess import process_labels, reshape_input_eeg
+import random
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import seaborn as sns
+import torch
+import torch.nn as nn
+from plotly.subplots import make_subplots
+from sklearn.model_selection import KFold
+from sklearn.preprocessing import StandardScaler
 from src.models.cnn import CNN_big, train_model_early_stopping
 from src.models.pca import pca
-from src.models.svm import train_svm
+from src.models.svm import multi_datasets, train_svm
+from src.utils.preprocess import process_labels, reshape_input_eeg
+from torch.utils.data import DataLoader, Subset, TensorDataset
 
-
+# Binarise labels
 out_cohesion = process_labels("Averaged Cohesion scores.csv", "labels.csv")
 
-
+# Binary threshold visual
 fig = px.scatter(
     out_cohesion,
     x="pair",
-    y="Labels",
-    color="Binary Labels",
+    y="Labels_nonbi",
+    color="Labels",
     labels={"X": "X-Axis Label", "Y": "Y-Axis Label"},
     title="Anerage score distribution per pair and binary selection threshold",
 )
@@ -32,8 +46,9 @@ fig.add_annotation(
 )
 
 ################################
+# Pie chart label distribution
 
-data = pd.read_csv("labels.csv") ??????????????
+data = pd.read_csv("labels.csv")
 label_counts = data.value_counts()
 
 if "Labels" in data.columns:
@@ -52,6 +67,7 @@ else:
     print("Column 'label' not found in the CSV file. Please check the file structure.")
 
 ################################
+# Reshape all datasets
 
 reshape_input_eeg("correlations_array.csv", "reshaped_correlations.csv", has_part=False)
 reshape_input_eeg("correlations_array5.csv", "reshaped_correlations5.csv", has_part=True)
@@ -60,12 +76,13 @@ reshape_input_eeg("correlations_array60.csv", "reshaped_correlations60.csv", has
 reshape_input_eeg("correlations_array120.csv", "reshaped_correlations120.csv", has_part=True)
 
 ################################
+# Perform SVM
 
-best_model, best_params, best_score = train_svm("reshaped_correlations120.csv", "labels.csv")
+best_model, best_params, best_score, results_df = train_svm("reshaped_correlations120.csv", "labels.csv")
+results_df.head()
 
 ################################
-
-results_df.head()
+# Visuals for labels heatmap + best F1 score for SVM
 
 heatmap_data = results_df.pivot_table(index="param_svc__kernel", columns="param_svc__gamma", values="mean_test_f1")
 
@@ -76,8 +93,6 @@ plt.title("F1 Score Heatmap")
 plt.xlabel("Gamma")
 plt.ylabel("Kernel type")
 plt.show()
-
-################################
 
 if "mean_test_f1" in results_df.columns:
     plot_data = pd.DataFrame({"Index": range(len(results_df["mean_test_f1"])), "F1": results_df["mean_test_f1"]})
@@ -100,7 +115,7 @@ if "mean_test_f1" in results_df.columns:
         x1=plot_data["Index"].max(),
         y0=best_f1,
         y1=best_f1,
-        line=dict(color="red", width=2, dash="dash"),
+        line={"color": "red", "width": 2, "dash": "dash"},
         name="Best F1 Score",
     )
 
@@ -109,7 +124,7 @@ if "mean_test_f1" in results_df.columns:
         y=best_f1 + 0.02,
         text=f"Best F1 Score: {best_f1:.3f}",
         showarrow=False,
-        font=dict(size=12, color="red"),
+        font={"size": 12, "color": "red"},
         align="right",
     )
 
@@ -118,6 +133,7 @@ if "mean_test_f1" in results_df.columns:
     fig.show()
 
 ################################
+# Perform multiple datasets SVM
 
 datasets = [
     ("reshaped_correlations.csv", "labels.csv"),
@@ -128,9 +144,10 @@ datasets = [
 ]
 
 results_df = multi_datasets(datasets)
-results_df
+results_df  # noqa: B018
 
 ################################
+# Visuals for nultiple dataset SVM
 
 dataset_scores = results_df.groupby("Dataset", as_index=False)["Best F1 Score"].mean()
 
@@ -146,7 +163,7 @@ fig = px.bar(
 
 fig.update_traces(texttemplate="%{text:.2f}", textposition="outside")
 fig.update_layout(
-    xaxis=dict(title="Best F1 Score", range=[0.7, dataset_scores["Best F1 Score"].max() + 0.02]),
+    xaxis={"title": "Best F1 Score", "range": [0.7, dataset_scores["Best F1 Score"].max() + 0.02]},
     yaxis_title="Dataset",
     showlegend=False,
     height=1.2 * len(results_df["Dataset"].unique()) * 100,
@@ -155,8 +172,10 @@ fig.update_layout(
 fig.show()
 
 ################################
+# Perform PCA, figures included
 
 pca("reshaped_correlations.csv", 15)
+pca("reshaped_correlations120.csv", 15)
 
 ################################
 
@@ -190,9 +209,7 @@ X_tensor = torch.tensor(X_np)
 y_tensor = torch.tensor(y_np)
 
 ################################
-
-# Parameters and cross-validation
-# Standard for small dataset
+# Visuals for CNN
 
 batch_size = 16
 lr = 0.001
