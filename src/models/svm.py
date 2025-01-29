@@ -1,10 +1,17 @@
+import numpy as np
 import pandas as pd
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.metrics import f1_score, make_scorer
+from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
 
 def train_svm(input, output):
-    global results_df
-
+    SEED = 42
+    np.random.seed(SEED)
+    
     df_X = pd.read_csv(input)
     df_Y = pd.read_csv(output)
 
@@ -49,7 +56,7 @@ def train_svm(input, output):
     print("Best Parameters:", grid_search.best_params_)
     print("Best F1 Score:", grid_search.best_score_)
 
-    return best_model, best_params, best_score
+    return best_model, best_params, best_score, results_df
 
 
 def multi_datasets(datasets):
