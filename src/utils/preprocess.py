@@ -3,7 +3,7 @@ import pandas as pd
 
 def process_labels(input, output):
     """
-    ...Прописать что делает фукнция
+    Turn average cohesion score into a binary score
     """
     df = pd.read_csv(input)
     cohesion_score = df["Average cohesion score"].values  # convert to ndarray
@@ -19,6 +19,9 @@ def process_labels(input, output):
 
 
 def reshape_input_eeg(input_file: str, output_file, has_part=True) -> None:
+    """
+    Reshape table
+    """
     df = pd.read_csv(input_file, header=None)
 
     if has_part:  # "part" means we dissect the data by time, this is how we name it in the CSV file
