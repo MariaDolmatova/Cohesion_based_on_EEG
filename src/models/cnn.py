@@ -1,4 +1,12 @@
-# Define the CNN model
+import copy
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from plotly.subplots import make_subplots
+from sklearn.metrics import accuracy_score, f1_score
+from torch.utils.data import DataLoader, Subset, TensorDataset
+
 class CNN_big(nn.Module):
     def __init__(self):
         super(CNN_big, self).__init__()
