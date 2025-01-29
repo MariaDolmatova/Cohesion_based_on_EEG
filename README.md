@@ -50,10 +50,10 @@ This project aims to classify dyads as high or low cohesive based on EEG synchro
 ## Results  
 
 ### SVM Model  
-- Average F1 Score belows 0.75
+- Average F1 Score is 0.75
 
 ### CNN Model  
-- Average F1 Score =  0.42
+- Average F1 Score =  0.56
 - Overfitting 
 
 ---
