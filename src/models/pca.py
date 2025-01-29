@@ -1,3 +1,9 @@
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
 def pca(csv_file, n_features=15):
     data = pd.read_csv(csv_file)
     data.drop(columns=["Pair"], inplace=True, errors="ignore")
