@@ -1,7 +1,7 @@
 from src.utils.preprocess import process_labels, reshape_input_eeg
 from src.models.cnn import CNN_big, train_model_early_stopping
 from src.models.pca import pca
-from src.models.svm import 
+from src.models.svm import train_svm
 
 
 out_cohesion = process_labels("Averaged Cohesion scores.csv", "labels.csv")
