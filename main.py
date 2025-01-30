@@ -178,6 +178,7 @@ pca("reshaped_correlations.csv", 15)
 pca("reshaped_correlations120.csv", 15)
 
 ################################
+# CNN INCLUDE IN FUNC
 
 epochs_range = list(range(1, 51))
 
