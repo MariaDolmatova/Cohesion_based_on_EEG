@@ -1,3 +1,5 @@
+import numpy as np
+
 def reshape_input_eeg(input_file: str, output_file, has_part=True) -> None:
     """
     Reshape table
