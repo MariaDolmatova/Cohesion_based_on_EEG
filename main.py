@@ -11,7 +11,7 @@ import torch.nn as nn
 from plotly.subplots import make_subplots
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
-from src.models.cnn import CNN_big, train_model_early_stopping
+from src.models.cnn import CNN_120dataset, train_model_early_stopping
 from src.models.pca import pca
 from src.models.svm import multi_datasets, train_svm
 from src.utils.preprocess import process_labels, reshape_input_eeg
